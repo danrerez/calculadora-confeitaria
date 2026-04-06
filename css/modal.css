@@ -1,0 +1,465 @@
+/*
+  ╔══════════════════════════════════════════════════════════════╗
+  ║       BELLA DOCES — modal.css                                ║
+  ║       Estilos dos modais e sobreposições                     ║
+  ╚══════════════════════════════════════════════════════════════╝
+*/
+
+/* ─── Overlay (fundo escurecido) ─── */
+.modal-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(90, 58, 40, 0.45);
+  backdrop-filter: blur(3px);
+  -webkit-backdrop-filter: blur(3px);
+  z-index: 1000;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+  overflow-y: auto;
+}
+
+.modal-overlay.open {
+  display: flex;
+  animation: overlayIn 0.2s ease;
+}
+
+@keyframes overlayIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+/* ─── Caixa do modal ─── */
+.modal-box {
+  background: var(--branco);
+  border-radius: var(--r-xl);
+  width: 100%;
+  max-width: 480px;
+  max-height: 90vh;
+  overflow-y: auto;
+  box-shadow: var(--sh-lg);
+  animation: modalIn 0.3s cubic-bezier(0.34, 1.2, 0.64, 1);
+  display: flex;
+  flex-direction: column;
+}
+
+.modal-box-sm { max-width: 380px; }
+
+@keyframes modalIn {
+  from { opacity: 0; transform: scale(0.92) translateY(16px); }
+  to   { opacity: 1; transform: scale(1) translateY(0); }
+}
+
+/* ─── Header do modal ─── */
+.modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--sp-lg) var(--sp-lg) var(--sp-md);
+  border-bottom: 1px solid var(--creme-md);
+  position: sticky;
+  top: 0;
+  background: var(--branco);
+  z-index: 1;
+  border-radius: var(--r-xl) var(--r-xl) 0 0;
+}
+
+.modal-title {
+  font-family: var(--font-display);
+  font-style: italic;
+  font-size: 1.15rem;
+  color: var(--marrom);
+}
+
+.modal-close {
+  background: var(--creme);
+  border: none;
+  width: 32px; height: 32px;
+  border-radius: 50%;
+  cursor: pointer;
+  font-size: 0.85rem;
+  color: var(--marrom-lt);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: var(--tr);
+  flex-shrink: 0;
+}
+
+.modal-close:hover { background: var(--rosa-bg); color: var(--rosa-escuro); }
+
+/* ─── Tabs do modal (Do Estoque / Manual) ─── */
+.modal-tabs {
+  display: flex;
+  padding: var(--sp-md) var(--sp-lg);
+  gap: var(--sp-sm);
+  border-bottom: 1px solid var(--creme-md);
+}
+
+.modal-tab {
+  flex: 1;
+  padding: 9px var(--sp-md);
+  background: var(--creme);
+  border: 1.5px solid var(--creme-md);
+  border-radius: var(--r-sm);
+  font-family: var(--font-body);
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: var(--marrom-lt);
+  cursor: pointer;
+  transition: var(--tr);
+  text-align: center;
+}
+
+.modal-tab.active {
+  background: var(--rosa-bg);
+  border-color: var(--rosa-claro);
+  color: var(--rosa-escuro);
+}
+
+.modal-tab:not(.active):hover { background: var(--creme-md); }
+
+/* ─── Painéis do modal ─── */
+.modal-panel {
+  display: none;
+  padding: var(--sp-md) var(--sp-lg);
+  flex-direction: column;
+  gap: var(--sp-md);
+}
+
+.modal-panel.active {
+  display: flex;
+}
+
+/* ─── Body genérico ─── */
+.modal-body {
+  padding: var(--sp-md) var(--sp-lg);
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-md);
+}
+
+/* ─── Busca no modal (Do Estoque) ─── */
+.modal-stock-search-wrap {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-sm);
+  background: var(--creme);
+  border: 1.5px solid var(--creme-md);
+  border-radius: var(--r-full);
+  padding: 8px 14px;
+  transition: var(--tr);
+}
+
+.modal-stock-search-wrap:focus-within {
+  border-color: var(--rosa);
+  box-shadow: 0 0 0 3px rgba(224,125,150,0.12);
+}
+
+.modal-stock-search {
+  flex: 1;
+  border: none;
+  outline: none;
+  font-family: var(--font-body);
+  font-size: 0.88rem;
+  color: var(--marrom);
+  background: transparent;
+}
+
+/* ─── Lista de ingredientes do estoque no modal ─── */
+.modal-stock-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-xs);
+  max-height: 220px;
+  overflow-y: auto;
+  border-radius: var(--r-sm);
+  border: 1px solid var(--creme-md);
+}
+
+/* Item clicável da lista */
+.modal-stock-item {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-md);
+  padding: 10px var(--sp-md);
+  cursor: pointer;
+  transition: background var(--tr);
+  border-bottom: 1px solid var(--creme-md);
+}
+
+.modal-stock-item:last-child { border-bottom: none; }
+
+.modal-stock-item:hover { background: var(--rosa-bg); }
+
+.modal-stock-item.selected {
+  background: var(--rosa-bg);
+  border-left: 3px solid var(--rosa);
+}
+
+.msi-icon { font-size: 1.1rem; flex-shrink: 0; }
+
+.msi-info { flex: 1; min-width: 0; }
+
+.msi-name {
+  font-size: 0.88rem;
+  font-weight: 700;
+  color: var(--marrom);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.msi-pkg {
+  font-size: 0.72rem;
+  color: var(--marrom-lt);
+}
+
+.msi-cpu {
+  font-size: 0.78rem;
+  font-weight: 800;
+  color: var(--rosa-escuro);
+  white-space: nowrap;
+}
+
+/* ─── Selecionado: campos de quantidade ─── */
+.modal-stock-qty { display: flex; flex-direction: column; gap: var(--sp-md); }
+
+.selected-ing-card {
+  background: var(--rosa-bg);
+  border: 1.5px solid var(--rosa-claro);
+  border-radius: var(--r-sm);
+  padding: 10px var(--sp-md);
+  font-size: 0.85rem;
+}
+
+.selected-ing-card strong { color: var(--rosa-escuro); }
+
+.qty-input-wrap {
+  display: flex;
+  align-items: stretch;
+  border: 1.5px solid var(--creme-dk);
+  border-radius: var(--r-sm);
+  overflow: hidden;
+  background: var(--branco);
+  transition: var(--tr);
+}
+
+.qty-input-wrap:focus-within {
+  border-color: var(--rosa);
+  box-shadow: 0 0 0 3px rgba(224,125,150,0.15);
+}
+
+.qty-input {
+  flex: 1;
+  border: none;
+  outline: none;
+  padding: 9px 12px;
+  font-size: 1.05rem;
+  font-weight: 700;
+}
+
+.qty-unit-badge {
+  display: flex;
+  align-items: center;
+  padding: 0 14px;
+  background: var(--creme-md);
+  color: var(--marrom-md);
+  font-size: 0.85rem;
+  font-weight: 800;
+}
+
+/* Preview do custo calculado */
+.modal-cost-preview {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: var(--creme);
+  border-radius: var(--r-sm);
+  padding: 10px var(--sp-md);
+  font-size: 0.88rem;
+  border: 1px solid var(--creme-md);
+}
+
+.modal-cost-preview strong {
+  font-size: 1.1rem;
+  color: var(--rosa-escuro);
+  font-weight: 800;
+}
+
+/* Estado vazio do estoque no modal */
+.modal-stock-empty {
+  text-align: center;
+  padding: var(--sp-xl) var(--sp-md);
+  color: var(--marrom-lt);
+  font-size: 0.88rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--sp-md);
+}
+
+/* ─── Checkbox "Salvar no estoque" ─── */
+.save-to-stock-check {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-sm);
+  cursor: pointer;
+  font-size: 0.85rem;
+  color: var(--marrom);
+  font-weight: 600;
+  padding: 8px 10px;
+  border-radius: var(--r-sm);
+  transition: background var(--tr);
+}
+
+.save-to-stock-check:hover { background: var(--creme); }
+
+.save-to-stock-check input[type=checkbox] { display: none; }
+
+.check-box-custom {
+  width: 20px; height: 20px;
+  border: 2px solid var(--creme-dk);
+  border-radius: 5px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: var(--tr);
+  flex-shrink: 0;
+  background: var(--branco);
+}
+
+.save-to-stock-check input:checked + .check-box-custom {
+  background: var(--rosa);
+  border-color: var(--rosa-escuro);
+}
+
+.save-to-stock-check input:checked + .check-box-custom::after {
+  content: '✓';
+  color: var(--branco);
+  font-size: 0.75rem;
+  font-weight: 900;
+}
+
+.save-fields-divider {
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: var(--marrom-lt);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  border-top: 1px solid var(--creme-md);
+  padding-top: var(--sp-md);
+  margin-top: var(--sp-sm);
+}
+
+/* ─── Preview custo por unidade (modal estoque) ─── */
+.cost-per-unit-preview {
+  background: var(--verde-bg);
+  border: 1px solid var(--verde-claro);
+  border-radius: var(--r-sm);
+  padding: 10px var(--sp-md);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 0.85rem;
+}
+
+.cpu-label { color: var(--marrom-lt); }
+.cpu-value { font-weight: 800; color: var(--verde); font-size: 0.95rem; }
+
+/* ─── Footer do modal ─── */
+.modal-footer {
+  display: flex;
+  gap: var(--sp-sm);
+  padding: var(--sp-md) var(--sp-lg) var(--sp-lg);
+  border-top: 1px solid var(--creme-md);
+  position: sticky;
+  bottom: 0;
+  background: var(--branco);
+  border-radius: 0 0 var(--r-xl) var(--r-xl);
+}
+
+.btn-modal-cancel {
+  flex: 1;
+  padding: 11px;
+  background: var(--creme);
+  border: 1.5px solid var(--creme-md);
+  border-radius: var(--r-full);
+  font-family: var(--font-body);
+  font-size: 0.88rem;
+  font-weight: 700;
+  color: var(--marrom-lt);
+  cursor: pointer;
+  transition: var(--tr);
+}
+
+.btn-modal-cancel:hover { background: var(--creme-md); color: var(--marrom); }
+
+.btn-modal-confirm {
+  flex: 2;
+  padding: 11px;
+  background: linear-gradient(135deg, var(--rosa), var(--rosa-escuro));
+  border: none;
+  border-radius: var(--r-full);
+  font-family: var(--font-body);
+  font-size: 0.9rem;
+  font-weight: 800;
+  color: var(--branco);
+  cursor: pointer;
+  transition: var(--tr);
+  box-shadow: 0 3px 12px rgba(224,125,150,0.3);
+}
+
+.btn-modal-confirm:hover { transform: translateY(-1px); box-shadow: 0 5px 16px rgba(224,125,150,0.4); }
+
+.btn-modal-delete {
+  flex: 2;
+  padding: 11px;
+  background: #e05050;
+  border: none;
+  border-radius: var(--r-full);
+  font-family: var(--font-body);
+  font-size: 0.9rem;
+  font-weight: 800;
+  color: var(--branco);
+  cursor: pointer;
+  transition: var(--tr);
+}
+
+.btn-modal-delete:hover { background: #c03030; }
+
+/* ─── Confirmação de exclusão ─── */
+.delete-confirm-text {
+  font-size: 0.9rem;
+  color: var(--marrom);
+  line-height: 1.6;
+}
+
+/* ─── Scrollbar personalizada nos modais ─── */
+.modal-box::-webkit-scrollbar,
+.modal-stock-list::-webkit-scrollbar { width: 4px; }
+
+.modal-box::-webkit-scrollbar-thumb,
+.modal-stock-list::-webkit-scrollbar-thumb {
+  background: var(--creme-dk);
+  border-radius: 2px;
+}
+
+/* ─── Responsivo ─── */
+@media (max-width: 480px) {
+  .modal-overlay { padding: 0; align-items: flex-end; }
+  .modal-box {
+    max-width: 100%;
+    border-radius: var(--r-xl) var(--r-xl) 0 0;
+    max-height: 92vh;
+    animation: modalInMobile 0.3s cubic-bezier(0.34, 1.1, 0.64, 1);
+  }
+  .modal-header { border-radius: var(--r-xl) var(--r-xl) 0 0; }
+  .modal-footer { border-radius: 0; }
+}
+
+@keyframes modalInMobile {
+  from { opacity: 0; transform: translateY(40px); }
+  to   { opacity: 1; transform: translateY(0); }
+}

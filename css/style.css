@@ -1,0 +1,1311 @@
+/*
+  ╔══════════════════════════════════════════════════════════════╗
+  ║       BELLA DOCES — style.css                                ║
+  ║       Identidade visual + layout principal do app            ║
+  ╚══════════════════════════════════════════════════════════════╝
+
+  SEÇÕES:
+   1. Custom Properties (paleta, tipografia, espaçamentos)
+   2. Reset e base
+   3. App Header (logo + abas)
+   4. Views (calculadora / estoque)
+   5. Barra de progresso da calculadora
+   6. Etapas (calc-step)
+   7. Seções de ingredientes
+   8. Cards de formulário
+   9. Componentes de input
+  10. Mão de obra
+  11. Despesas
+  12. Resultado final
+  13. Aba Estoque
+  14. Botões
+  15. Animações
+  16. Print
+  17. Responsividade
+*/
+
+/* ─────────────────────────────────────
+   1. CUSTOM PROPERTIES
+───────────────────────────────────── */
+:root {
+  /* Cores — extraídas da logo Bella Doces */
+  --rosa:        #E07D96;
+  --rosa-claro:  #F2B8C6;
+  --rosa-escuro: #C05070;
+  --rosa-bg:     #FFF3F6;
+  --creme:       #FBF5EE;
+  --creme-md:    #F2E8DC;
+  --creme-dk:    #E8D8C8;
+  --verde:       #7AAD6A;
+  --verde-claro: #A8C898;
+  --verde-bg:    #F0F7EC;
+  --marrom:      #5A3A28;
+  --marrom-md:   #8B6040;
+  --marrom-lt:   #B89070;
+  --dourado:     #C8983A;
+  --branco:      #FFFFFF;
+  --cinza-lt:    #F5F0EB;
+
+  /* Tipografia */
+  --font-display: 'Playfair Display', Georgia, serif;
+  --font-body:    'Nunito', system-ui, sans-serif;
+
+  /* Espaçamentos */
+  --sp-xs: 4px;
+  --sp-sm: 8px;
+  --sp-md: 16px;
+  --sp-lg: 24px;
+  --sp-xl: 40px;
+
+  /* Bordas */
+  --r-sm: 8px;
+  --r-md: 14px;
+  --r-lg: 20px;
+  --r-xl: 28px;
+  --r-full: 999px;
+
+  /* Sombras */
+  --sh-sm: 0 2px 8px rgba(90, 58, 40, 0.08);
+  --sh-md: 0 4px 20px rgba(90, 58, 40, 0.12);
+  --sh-lg: 0 8px 40px rgba(90, 58, 40, 0.18);
+
+  /* Transição padrão */
+  --tr: 0.22s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* ─────────────────────────────────────
+   2. RESET E BASE
+───────────────────────────────────── */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+html { font-size: 16px; scroll-behavior: smooth; }
+
+body {
+  font-family: var(--font-body);
+  background: var(--creme);
+  color: var(--marrom);
+  line-height: 1.6;
+  min-height: 100vh;
+  /* Textura de fundo suave */
+  background-image:
+    radial-gradient(ellipse at 10% 0%, rgba(224,125,150,0.07) 0%, transparent 55%),
+    radial-gradient(ellipse at 90% 100%, rgba(122,173,106,0.07) 0%, transparent 55%);
+}
+
+::selection { background: var(--rosa-claro); color: var(--marrom); }
+
+/* Remove spinner dos inputs number */
+input[type=number]::-webkit-inner-spin-button,
+input[type=number]::-webkit-outer-spin-button { -webkit-appearance: none; }
+input[type=number] { -moz-appearance: textfield; }
+
+/* ─────────────────────────────────────
+   3. APP HEADER
+───────────────────────────────────── */
+.app-header {
+  background: var(--branco);
+  border-bottom: 2px solid var(--creme-md);
+  position: sticky;
+  top: 0;
+  z-index: 200;
+  box-shadow: var(--sh-sm);
+}
+
+.header-logo-wrap {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-md);
+  padding: var(--sp-md) var(--sp-lg);
+  padding-bottom: var(--sp-sm);
+}
+
+.header-logo {
+  width: 64px;
+  height: 64px;
+  object-fit: cover;
+  border-radius: 50%;
+  border: 3px solid var(--rosa-claro);
+  box-shadow: 0 2px 12px rgba(224,125,150,0.25);
+  flex-shrink: 0;
+}
+
+.header-titles {
+  display: flex;
+  flex-direction: column;
+}
+
+.app-title {
+  font-family: var(--font-display);
+  font-style: italic;
+  font-size: 1.5rem;
+  color: var(--rosa-escuro);
+  line-height: 1.1;
+}
+
+.app-subtitle {
+  font-size: 0.75rem;
+  color: var(--marrom-lt);
+  font-weight: 600;
+  letter-spacing: 0.05em;
+}
+
+/* Abas de navegação */
+.app-tabs {
+  display: flex;
+  padding: 0 var(--sp-lg);
+  gap: 0;
+  border-top: 1px solid var(--creme-md);
+}
+
+.tab-btn {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-sm);
+  padding: 10px var(--sp-lg);
+  background: none;
+  border: none;
+  border-bottom: 3px solid transparent;
+  cursor: pointer;
+  font-family: var(--font-body);
+  font-size: 0.88rem;
+  font-weight: 700;
+  color: var(--marrom-lt);
+  transition: var(--tr);
+  position: relative;
+  white-space: nowrap;
+}
+
+.tab-btn:hover { color: var(--marrom); }
+
+.tab-btn.active {
+  color: var(--rosa-escuro);
+  border-bottom-color: var(--rosa);
+}
+
+.tab-icon { font-size: 1rem; }
+
+.tab-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 20px;
+  height: 20px;
+  background: var(--rosa);
+  color: var(--branco);
+  border-radius: var(--r-full);
+  font-size: 0.7rem;
+  font-weight: 800;
+  padding: 0 5px;
+  transition: var(--tr);
+}
+
+.tab-badge.empty { background: var(--creme-md); color: var(--marrom-lt); }
+
+/* ─────────────────────────────────────
+   4. VIEWS
+───────────────────────────────────── */
+.app-view {
+  display: none;
+  animation: viewIn 0.3s ease;
+}
+
+.app-view.active { display: block; }
+
+@keyframes viewIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* ─────────────────────────────────────
+   5. BARRA DE PROGRESSO
+───────────────────────────────────── */
+.progress-bar-wrap {
+  background: var(--branco);
+  border-bottom: 1px solid var(--creme-md);
+  padding: var(--sp-md) var(--sp-lg);
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+.progress-steps {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 380px;
+  max-width: 600px;
+  margin: 0 auto;
+  gap: 0;
+}
+
+.prog-step {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 4px 8px;
+  transition: var(--tr);
+  flex-shrink: 0;
+}
+
+.prog-dot {
+  width: 36px; height: 36px;
+  border-radius: 50%;
+  background: var(--creme-md);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 2px solid var(--creme-dk);
+  transition: var(--tr);
+  font-size: 1rem;
+}
+
+.prog-step.active .prog-dot {
+  background: var(--rosa);
+  border-color: var(--rosa-escuro);
+  box-shadow: 0 0 0 4px rgba(224,125,150,0.18);
+}
+
+.prog-step.done .prog-dot {
+  background: var(--verde-claro);
+  border-color: var(--verde);
+}
+
+.prog-label {
+  font-size: 0.62rem;
+  font-weight: 700;
+  color: var(--marrom-lt);
+  white-space: nowrap;
+}
+
+.prog-step.active .prog-label { color: var(--rosa-escuro); }
+.prog-step.done .prog-label   { color: var(--verde); }
+
+.prog-line {
+  flex: 1;
+  height: 2px;
+  background: var(--creme-dk);
+  min-width: 16px;
+  max-width: 60px;
+  transition: var(--tr);
+}
+
+.prog-line.done { background: var(--verde-claro); }
+
+/* ─────────────────────────────────────
+   6. ETAPAS DA CALCULADORA
+───────────────────────────────────── */
+.calc-main {
+  max-width: 680px;
+  margin: 0 auto;
+  padding: var(--sp-xl) var(--sp-lg);
+}
+
+.calc-step {
+  display: none;
+  animation: stepIn 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.calc-step.active { display: block; }
+
+@keyframes stepIn {
+  from { opacity: 0; transform: translateY(14px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.step-head {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--sp-md);
+  margin-bottom: var(--sp-xl);
+}
+
+.step-num {
+  font-family: var(--font-display);
+  font-size: 2.8rem;
+  font-weight: 700;
+  color: var(--creme-dk);
+  line-height: 1;
+  min-width: 64px;
+  text-align: right;
+  user-select: none;
+}
+
+.step-title {
+  font-family: var(--font-display);
+  font-size: 1.55rem;
+  color: var(--marrom);
+  line-height: 1.2;
+  font-style: italic;
+}
+
+.step-desc {
+  font-size: 0.85rem;
+  color: var(--marrom-lt);
+  margin-top: 2px;
+}
+
+/* ─────────────────────────────────────
+   7. SEÇÕES DE INGREDIENTES
+───────────────────────────────────── */
+.ing-sections {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-md);
+  margin-bottom: var(--sp-lg);
+}
+
+.ing-section {
+  background: var(--branco);
+  border: 1.5px solid var(--creme-md);
+  border-radius: var(--r-md);
+  overflow: hidden;
+  transition: box-shadow var(--tr);
+}
+
+.ing-section:hover { box-shadow: var(--sh-sm); }
+
+.ing-section-header {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-sm);
+  padding: 12px var(--sp-md);
+  background: var(--creme);
+  border-bottom: 1px solid var(--creme-md);
+}
+
+.ing-section-icon { font-size: 1.1rem; }
+
+.ing-section-name {
+  font-family: var(--font-display);
+  font-style: italic;
+  font-size: 1rem;
+  color: var(--rosa-escuro);
+  flex: 1;
+}
+
+.ing-section-total {
+  font-size: 0.85rem;
+  font-weight: 800;
+  color: var(--marrom-md);
+  background: var(--creme-md);
+  border-radius: var(--r-full);
+  padding: 2px 10px;
+}
+
+/* Lista de ingredientes adicionados */
+.ing-list {
+  padding: var(--sp-sm) var(--sp-md);
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-sm);
+  min-height: 4px;
+}
+
+/* Item de ingrediente na lista */
+.ing-item {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-sm);
+  padding: 8px 10px;
+  background: var(--creme);
+  border-radius: var(--r-sm);
+  animation: itemIn 0.2s ease;
+  position: relative;
+}
+
+@keyframes itemIn {
+  from { opacity: 0; transform: translateX(-6px); }
+  to   { opacity: 1; transform: translateX(0); }
+}
+
+.ing-item-icon {
+  font-size: 1rem;
+  flex-shrink: 0;
+}
+
+.ing-item-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.ing-item-name {
+  font-size: 0.88rem;
+  font-weight: 700;
+  color: var(--marrom);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.ing-item-detail {
+  font-size: 0.75rem;
+  color: var(--marrom-lt);
+}
+
+.ing-item-cost {
+  font-size: 0.92rem;
+  font-weight: 800;
+  color: var(--rosa-escuro);
+  white-space: nowrap;
+  margin-right: var(--sp-sm);
+}
+
+.ing-item-remove {
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: var(--marrom-lt);
+  font-size: 0.9rem;
+  width: 26px; height: 26px;
+  border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  transition: var(--tr);
+  flex-shrink: 0;
+}
+
+.ing-item-remove:hover {
+  background: var(--rosa-bg);
+  color: var(--rosa-escuro);
+}
+
+/* Botão adicionar ingrediente */
+.btn-add-ing {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--sp-sm);
+  width: 100%;
+  padding: 10px;
+  background: none;
+  border: 1.5px dashed var(--rosa-claro);
+  border-top: none;
+  color: var(--rosa);
+  font-family: var(--font-body);
+  font-size: 0.85rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: var(--tr);
+}
+
+.btn-add-ing:hover {
+  background: var(--rosa-bg);
+  border-style: solid;
+  color: var(--rosa-escuro);
+}
+
+.btn-add-plus {
+  font-size: 1.2rem;
+  line-height: 1;
+}
+
+/* Barra total geral da etapa */
+.step-total-bar {
+  background: linear-gradient(135deg, var(--rosa-bg), var(--branco));
+  border: 2px solid var(--rosa-claro);
+  border-radius: var(--r-md);
+  padding: var(--sp-md) var(--sp-lg);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-weight: 700;
+  margin-bottom: var(--sp-xl);
+}
+
+.step-total-bar strong {
+  font-family: var(--font-display);
+  font-size: 1.25rem;
+  color: var(--rosa-escuro);
+}
+
+/* ─────────────────────────────────────
+   8. CARDS DE FORMULÁRIO (etapas 3 e 4)
+───────────────────────────────────── */
+.card-form {
+  background: var(--branco);
+  border: 1.5px solid var(--creme-md);
+  border-radius: var(--r-md);
+  padding: var(--sp-lg);
+  margin-bottom: var(--sp-xl);
+}
+
+.section-subtitle {
+  font-family: var(--font-display);
+  font-style: italic;
+  font-size: 0.95rem;
+  color: var(--rosa-escuro);
+  margin-bottom: var(--sp-md);
+}
+
+.form-grid-2 {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--sp-md);
+  margin-bottom: var(--sp-md);
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.form-label {
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: var(--marrom);
+}
+
+/* ─────────────────────────────────────
+   9. COMPONENTES DE INPUT
+───────────────────────────────────── */
+.input-wrap {
+  display: flex;
+  align-items: stretch;
+  border: 1.5px solid var(--creme-dk);
+  border-radius: var(--r-sm);
+  overflow: hidden;
+  background: var(--branco);
+  transition: border-color var(--tr), box-shadow var(--tr);
+}
+
+.input-wrap:focus-within {
+  border-color: var(--rosa);
+  box-shadow: 0 0 0 3px rgba(224,125,150,0.15);
+}
+
+.input-pre {
+  display: flex;
+  align-items: center;
+  padding: 0 10px;
+  background: var(--creme-md);
+  color: var(--marrom-lt);
+  font-size: 0.78rem;
+  font-weight: 700;
+  white-space: nowrap;
+  user-select: none;
+}
+
+.form-input {
+  width: 100%;
+  border: 1.5px solid var(--creme-dk);
+  border-radius: var(--r-sm);
+  padding: 9px 12px;
+  font-family: var(--font-body);
+  font-size: 0.92rem;
+  color: var(--marrom);
+  background: var(--branco);
+  outline: none;
+  transition: border-color var(--tr), box-shadow var(--tr);
+}
+
+.form-input:focus {
+  border-color: var(--rosa);
+  box-shadow: 0 0 0 3px rgba(224,125,150,0.15);
+}
+
+/* Quando dentro de .input-wrap, remove borda própria */
+.input-wrap .form-input {
+  border: none;
+  border-radius: 0;
+  box-shadow: none;
+  flex: 1;
+}
+
+.form-select {
+  cursor: pointer;
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%23B89070' stroke-width='2' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 10px center;
+  padding-right: 30px;
+}
+
+.form-hint {
+  font-size: 0.72rem;
+  color: var(--marrom-lt);
+  opacity: 0.75;
+}
+
+/* ─────────────────────────────────────
+   10. MÃO DE OBRA
+───────────────────────────────────── */
+.labor-card {
+  margin-top: var(--sp-lg);
+  background: linear-gradient(135deg, var(--marrom) 0%, #7a4030 100%);
+  border-radius: var(--r-md);
+  padding: var(--sp-lg) var(--sp-xl);
+  color: var(--branco);
+  position: relative;
+  overflow: hidden;
+}
+
+.labor-card::after {
+  content: '👩‍🍳';
+  position: absolute;
+  right: var(--sp-lg);
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 3.5rem;
+  opacity: 0.1;
+}
+
+.labor-formula {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--sp-md);
+  flex-wrap: wrap;
+}
+
+.labor-piece {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 3px;
+}
+
+.lp-val {
+  font-family: var(--font-display);
+  font-size: 1.4rem;
+  font-weight: 700;
+  color: var(--branco);
+}
+
+.labor-result .lp-val {
+  font-size: 1.8rem;
+  color: var(--rosa-claro);
+}
+
+.lp-label {
+  font-size: 0.65rem;
+  opacity: 0.6;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.labor-op {
+  font-size: 1.4rem;
+  opacity: 0.5;
+  color: var(--rosa-claro);
+}
+
+/* ─────────────────────────────────────
+   11. DESPESAS
+───────────────────────────────────── */
+.expenses-summary {
+  margin-top: var(--sp-lg);
+  border-radius: var(--r-sm);
+  overflow: hidden;
+  border: 1px solid var(--creme-md);
+}
+
+.exp-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px var(--sp-md);
+  font-size: 0.88rem;
+  border-bottom: 1px solid var(--creme-md);
+  background: var(--creme);
+}
+
+.exp-row:last-child { border-bottom: none; }
+
+.exp-variable { background: rgba(224,125,150,0.05); }
+
+.exp-total-row {
+  background: var(--creme-md) !important;
+  font-weight: 700;
+}
+
+.exp-row strong { color: var(--rosa-escuro); }
+
+.info-badge {
+  display: inline-flex;
+  align-items: center;
+  background: var(--rosa);
+  color: var(--branco);
+  border-radius: var(--r-full);
+  font-size: 0.65rem;
+  font-weight: 800;
+  padding: 1px 7px;
+  margin-left: 5px;
+  cursor: help;
+  position: relative;
+}
+
+.info-tip {
+  display: none;
+  position: absolute;
+  bottom: calc(100% + 8px);
+  left: 50%;
+  transform: translateX(-50%);
+  background: var(--marrom);
+  color: var(--branco);
+  font-size: 0.75rem;
+  font-weight: 400;
+  padding: 8px 12px;
+  border-radius: var(--r-sm);
+  width: 220px;
+  line-height: 1.4;
+  z-index: 300;
+  pointer-events: none;
+  text-align: left;
+  white-space: normal;
+}
+
+.info-badge:hover .info-tip,
+.info-badge:focus .info-tip { display: block; }
+
+/* ─────────────────────────────────────
+   12. RESULTADO FINAL
+───────────────────────────────────── */
+.result-card {
+  background: var(--branco);
+  border: 1.5px solid var(--creme-md);
+  border-radius: var(--r-md);
+  padding: var(--sp-lg);
+  margin-bottom: var(--sp-lg);
+}
+
+.result-card-title {
+  font-family: var(--font-display);
+  font-style: italic;
+  font-size: 1.05rem;
+  color: var(--marrom);
+  margin-bottom: var(--sp-md);
+}
+
+/* Linhas do breakdown */
+.result-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 9px 12px;
+  font-size: 0.88rem;
+  border-bottom: 1px solid var(--creme-md);
+  transition: background var(--tr);
+}
+
+.result-row:last-child { border-bottom: none; background: var(--creme-md); font-weight: 700; }
+.result-row:hover { background: var(--creme); }
+
+.result-row-val { font-weight: 700; color: var(--marrom); }
+
+/* Barra de composição */
+.comp-bar-wrap { margin-top: var(--sp-md); }
+
+.comp-bar {
+  height: 10px;
+  border-radius: 5px;
+  display: flex;
+  overflow: hidden;
+  background: var(--creme-md);
+  margin-bottom: var(--sp-sm);
+}
+
+.comp-seg {
+  height: 100%;
+  transition: width 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.comp-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px 14px;
+}
+
+.legend-item {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 0.72rem;
+  color: var(--marrom-lt);
+}
+
+.legend-dot {
+  width: 10px; height: 10px;
+  border-radius: 3px;
+  flex-shrink: 0;
+}
+
+/* Margem de lucro */
+.margin-card { background: linear-gradient(135deg, #f9f5f0, var(--branco)); }
+
+.margin-control {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-sm);
+  margin-bottom: var(--sp-md);
+}
+
+.margin-num-wrap {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+}
+
+.margin-num-input {
+  font-family: var(--font-display);
+  font-size: 2.8rem;
+  font-weight: 700;
+  color: var(--verde);
+  border: none;
+  outline: none;
+  background: transparent;
+  width: 100px;
+  text-align: right;
+}
+
+.margin-pct-sign {
+  font-family: var(--font-display);
+  font-size: 2rem;
+  color: var(--verde);
+}
+
+.margin-slider {
+  width: 100%;
+  height: 6px;
+  border-radius: 3px;
+  outline: none;
+  cursor: pointer;
+  -webkit-appearance: none;
+}
+
+.margin-slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 22px; height: 22px;
+  border-radius: 50%;
+  background: var(--verde);
+  border: 3px solid var(--branco);
+  box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+  cursor: pointer;
+}
+
+.margin-slider-labels {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.7rem;
+  color: var(--marrom-lt);
+}
+
+.margin-result-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 14px;
+  background: var(--verde-bg);
+  border-radius: var(--r-sm);
+  font-size: 0.88rem;
+}
+
+.margin-result-row strong { color: var(--verde); font-size: 1rem; }
+
+/* Preço final */
+.price-hero {
+  background: linear-gradient(135deg, var(--rosa-escuro), #8a2840);
+  border-radius: var(--r-xl);
+  padding: var(--sp-xl) var(--sp-lg);
+  text-align: center;
+  color: var(--branco);
+  margin-bottom: var(--sp-xl);
+  box-shadow: var(--sh-lg);
+  position: relative;
+  overflow: hidden;
+}
+
+.price-hero::before,
+.price-hero::after {
+  content: '';
+  position: absolute;
+  border-radius: 50%;
+  background: rgba(255,255,255,0.05);
+}
+
+.price-hero::before { width: 160px; height: 160px; top: -50px; right: -40px; }
+.price-hero::after  { width: 100px; height: 100px; bottom: -30px; left: -30px; }
+
+.price-hero-eyebrow {
+  font-size: 0.75rem;
+  opacity: 0.7;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  margin-bottom: var(--sp-sm);
+}
+
+.price-hero-value {
+  font-family: var(--font-display);
+  font-size: clamp(2.4rem, 8vw, 3.5rem);
+  font-weight: 700;
+  line-height: 1;
+  margin-bottom: var(--sp-sm);
+}
+
+.price-hero-meta { font-size: 0.78rem; opacity: 0.65; }
+
+/* ─────────────────────────────────────
+   13. ABA ESTOQUE
+───────────────────────────────────── */
+.estoque-main {
+  max-width: 780px;
+  margin: 0 auto;
+  padding: var(--sp-xl) var(--sp-lg);
+}
+
+.estoque-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: var(--sp-md);
+  margin-bottom: var(--sp-xl);
+  flex-wrap: wrap;
+}
+
+.estoque-title {
+  font-family: var(--font-display);
+  font-style: italic;
+  font-size: 1.6rem;
+  color: var(--marrom);
+}
+
+.estoque-desc {
+  font-size: 0.85rem;
+  color: var(--marrom-lt);
+  margin-top: 2px;
+}
+
+/* Busca e filtro */
+.stock-search-wrap {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-sm);
+  background: var(--branco);
+  border: 1.5px solid var(--creme-md);
+  border-radius: var(--r-full);
+  padding: 8px 16px;
+  margin-bottom: var(--sp-lg);
+  transition: border-color var(--tr), box-shadow var(--tr);
+}
+
+.stock-search-wrap:focus-within {
+  border-color: var(--rosa);
+  box-shadow: 0 0 0 3px rgba(224,125,150,0.12);
+}
+
+.stock-search-icon { font-size: 0.95rem; }
+
+.stock-search-input {
+  flex: 1;
+  border: none;
+  outline: none;
+  font-family: var(--font-body);
+  font-size: 0.9rem;
+  color: var(--marrom);
+  background: transparent;
+}
+
+.stock-filter-select {
+  border: none;
+  outline: none;
+  font-family: var(--font-body);
+  font-size: 0.82rem;
+  color: var(--marrom-lt);
+  background: transparent;
+  cursor: pointer;
+  max-width: 160px;
+}
+
+/* Grid de cards do estoque */
+.stock-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  gap: var(--sp-md);
+}
+
+/* Card de ingrediente no estoque */
+.stock-card {
+  background: var(--branco);
+  border: 1.5px solid var(--creme-md);
+  border-radius: var(--r-md);
+  padding: var(--sp-md);
+  transition: var(--tr);
+  animation: cardIn 0.25s ease;
+  position: relative;
+}
+
+@keyframes cardIn {
+  from { opacity: 0; transform: scale(0.96); }
+  to   { opacity: 1; transform: scale(1); }
+}
+
+.stock-card:hover {
+  box-shadow: var(--sh-md);
+  border-color: var(--rosa-claro);
+  transform: translateY(-2px);
+}
+
+.stock-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: var(--sp-sm);
+}
+
+.stock-card-name {
+  font-weight: 800;
+  font-size: 0.95rem;
+  color: var(--marrom);
+  line-height: 1.3;
+}
+
+.stock-card-category {
+  font-size: 0.68rem;
+  background: var(--creme-md);
+  color: var(--marrom-md);
+  border-radius: var(--r-full);
+  padding: 2px 8px;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.stock-card-pkg {
+  font-size: 0.8rem;
+  color: var(--marrom-lt);
+  margin-bottom: var(--sp-sm);
+}
+
+.stock-card-cpu {
+  font-size: 0.9rem;
+  font-weight: 800;
+  color: var(--rosa-escuro);
+  background: var(--rosa-bg);
+  border-radius: var(--r-sm);
+  padding: 6px 10px;
+  margin-bottom: var(--sp-md);
+}
+
+.stock-card-cpu span { font-weight: 400; color: var(--marrom-lt); font-size: 0.78rem; }
+
+.stock-card-actions {
+  display: flex;
+  gap: var(--sp-sm);
+}
+
+.btn-stock-edit,
+.btn-stock-delete {
+  flex: 1;
+  padding: 7px;
+  border-radius: var(--r-sm);
+  border: 1.5px solid var(--creme-dk);
+  font-family: var(--font-body);
+  font-size: 0.78rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: var(--tr);
+  text-align: center;
+}
+
+.btn-stock-edit { background: var(--creme); color: var(--marrom-md); }
+.btn-stock-edit:hover { background: var(--creme-md); }
+
+.btn-stock-delete { background: none; color: var(--rosa); border-color: var(--rosa-claro); }
+.btn-stock-delete:hover { background: var(--rosa-bg); }
+
+/* Estado vazio */
+.stock-empty {
+  text-align: center;
+  padding: var(--sp-xl) var(--sp-lg);
+  display: none;
+}
+
+.stock-empty.visible { display: block; }
+
+.stock-empty-icon { font-size: 3rem; margin-bottom: var(--sp-md); opacity: 0.5; }
+.stock-empty-title { font-family: var(--font-display); font-style: italic; font-size: 1.2rem; color: var(--marrom-lt); margin-bottom: var(--sp-sm); }
+.stock-empty-desc { font-size: 0.85rem; color: var(--marrom-lt); margin-bottom: var(--sp-lg); }
+
+/* ─────────────────────────────────────
+   14. BOTÕES PRINCIPAIS
+───────────────────────────────────── */
+.step-nav {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: var(--sp-md);
+  margin-top: var(--sp-xl);
+}
+
+.result-nav { flex-wrap: wrap; }
+
+.btn-next {
+  background: linear-gradient(135deg, var(--rosa), var(--rosa-escuro));
+  color: var(--branco);
+  border: none;
+  border-radius: var(--r-full);
+  padding: 12px 28px;
+  font-family: var(--font-body);
+  font-size: 0.9rem;
+  font-weight: 800;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: var(--sp-sm);
+  transition: var(--tr);
+  box-shadow: 0 4px 14px rgba(224,125,150,0.35);
+}
+
+.btn-next:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(224,125,150,0.45); }
+.btn-next:active { transform: translateY(0); }
+
+.btn-next.btn-green {
+  background: linear-gradient(135deg, var(--verde), #559045);
+  box-shadow: 0 4px 14px rgba(122,173,106,0.35);
+}
+
+.btn-back {
+  background: none;
+  color: var(--marrom-lt);
+  border: 1.5px solid var(--creme-dk);
+  border-radius: var(--r-full);
+  padding: 12px 22px;
+  font-family: var(--font-body);
+  font-size: 0.88rem;
+  font-weight: 700;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: var(--sp-sm);
+  transition: var(--tr);
+}
+
+.btn-back:hover { background: var(--creme-md); color: var(--marrom); }
+
+.btn-print {
+  background: var(--creme-md);
+  color: var(--marrom);
+  border: none;
+  border-radius: var(--r-full);
+  padding: 12px 22px;
+  font-family: var(--font-body);
+  font-size: 0.88rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: var(--tr);
+}
+
+.btn-print:hover { background: var(--creme-dk); }
+
+.btn-reset {
+  background: none;
+  color: var(--rosa-escuro);
+  border: 1.5px solid var(--rosa-claro);
+  border-radius: var(--r-full);
+  padding: 12px 22px;
+  font-family: var(--font-body);
+  font-size: 0.88rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: var(--tr);
+}
+
+.btn-reset:hover { background: var(--rosa-bg); }
+
+.btn-add-stock {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--sp-sm);
+  background: linear-gradient(135deg, var(--rosa), var(--rosa-escuro));
+  color: var(--branco);
+  border: none;
+  border-radius: var(--r-full);
+  padding: 11px 22px;
+  font-family: var(--font-body);
+  font-size: 0.88rem;
+  font-weight: 800;
+  cursor: pointer;
+  transition: var(--tr);
+  box-shadow: 0 3px 12px rgba(224,125,150,0.3);
+  white-space: nowrap;
+}
+
+.btn-add-stock:hover { transform: translateY(-2px); box-shadow: 0 5px 18px rgba(224,125,150,0.4); }
+
+.btn-link {
+  background: none;
+  border: none;
+  color: var(--rosa-escuro);
+  font-family: var(--font-body);
+  font-size: 0.88rem;
+  font-weight: 700;
+  cursor: pointer;
+  text-decoration: underline;
+  padding: 0;
+  transition: var(--tr);
+}
+
+.btn-link:hover { color: var(--rosa); }
+
+/* ─────────────────────────────────────
+   15. ANIMAÇÕES
+───────────────────────────────────── */
+.fade-in { animation: fadeIn 0.3s ease; }
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+/* ─────────────────────────────────────
+   16. PRINT
+───────────────────────────────────── */
+@media print {
+  .app-header, .progress-bar-wrap, .step-nav, .result-nav { display: none !important; }
+  body { background: white; }
+  .calc-main { padding: 0; max-width: 100%; }
+  .calc-step { display: none !important; }
+  #step-5 { display: block !important; }
+  .price-hero { background: none !important; color: var(--marrom) !important; border: 2px solid var(--marrom) !important; border-radius: 12px; }
+  .price-hero-value { color: var(--marrom) !important; }
+}
+
+/* ─────────────────────────────────────
+   17. RESPONSIVIDADE
+───────────────────────────────────── */
+@media (max-width: 768px) {
+  .header-logo { width: 52px; height: 52px; }
+  .app-title { font-size: 1.3rem; }
+  .tab-btn { padding: 10px var(--sp-md); font-size: 0.82rem; }
+  .form-grid-2 { grid-template-columns: 1fr; }
+  .stock-grid { grid-template-columns: 1fr; }
+  .estoque-header { flex-direction: column; align-items: flex-start; }
+  .result-nav .btn-back, .result-nav .btn-print, .result-nav .btn-reset { flex: 1; justify-content: center; }
+  .stock-search-wrap { flex-wrap: wrap; border-radius: var(--r-md); }
+  .stock-filter-select { max-width: 100%; width: 100%; }
+}
+
+@media (max-width: 480px) {
+  .header-logo-wrap { padding: var(--sp-sm) var(--sp-md); }
+  .header-logo { width: 44px; height: 44px; }
+  .app-title { font-size: 1.1rem; }
+  .app-subtitle { font-size: 0.68rem; }
+  .tab-label { font-size: 0.78rem; }
+  .calc-main, .estoque-main { padding: var(--sp-lg) var(--sp-md); }
+  .prog-label { display: none; }
+  .step-num { font-size: 2rem; min-width: 48px; }
+  .step-title { font-size: 1.25rem; }
+  .labor-formula { flex-direction: column; gap: var(--sp-sm); }
+  .labor-op { display: none; }
+  .labor-result .lp-val { font-size: 2rem; }
+  .price-hero-value { font-size: 2rem; }
+  .step-nav { gap: var(--sp-sm); }
+  .btn-next, .btn-back { padding: 10px 18px; font-size: 0.82rem; }
+}
+
+@media (max-width: 360px) {
+  .step-nav { flex-direction: column; }
+  .btn-next, .btn-back { width: 100%; justify-content: center; }
+}

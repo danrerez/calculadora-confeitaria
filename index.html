@@ -1,0 +1,733 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <!--
+    ╔══════════════════════════════════════════════════════════════╗
+    ║       BELLA DOCES — Calculadora de Precificação v2.0         ║
+    ║       index.html — Estrutura principal do app                ║
+    ╚══════════════════════════════════════════════════════════════╝
+
+    ARQUITETURA DO APP:
+    ├── [Aba] Calculadora  → 5 etapas de precificação
+    ├── [Aba] Estoque      → CRUD de ingredientes com preço/embalagem
+    ├── [Modal] Adicionar ingrediente → seleção do estoque OU manual
+    └── [Modal] Cadastrar no estoque  → abre a partir do modal anterior
+
+    ARQUIVOS:
+      css/style.css    → Identidade visual Bella Doces
+      css/modal.css    → Estilos dos modais e sobreposições
+      js/storage.js    → Gerenciamento de dados (localStorage)
+      js/estoque.js    → Lógica da aba Estoque (CRUD)
+      js/calculator.js → Lógica da calculadora (5 etapas)
+      js/modal.js      → Controle dos modais
+      js/app.js        → Inicialização e orquestração geral
+  -->
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0" />
+  <meta name="description" content="Calculadora de precificação de bolos — Bella Doces" />
+  <title>Bella Doces — Precificação</title>
+
+  <!-- Fontes -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,500;0,700;1,500&family=Nunito:wght@300;400;600;700;800&display=swap" rel="stylesheet" />
+
+  <!-- Estilos -->
+  <link rel="stylesheet" href="css/style.css" />
+  <link rel="stylesheet" href="css/modal.css" />
+</head>
+<body>
+
+  <!-- ════════════════════════════════════
+       HEADER — Logo + navegação por abas
+  ═════════════════════════════════════ -->
+  <header class="app-header">
+    <div class="header-logo-wrap">
+      <img src="assets/logo.png" alt="Bella Doces" class="header-logo" />
+      <div class="header-titles">
+        <h1 class="app-title">Bella Doces</h1>
+        <p class="app-subtitle">Calculadora de Precificação</p>
+      </div>
+    </div>
+
+    <!-- Abas principais de navegação -->
+    <nav class="app-tabs" role="tablist" aria-label="Seções do aplicativo">
+      <button
+        class="tab-btn active"
+        data-tab="calculadora"
+        role="tab"
+        aria-selected="true"
+        aria-controls="view-calculadora"
+      >
+        <span class="tab-icon">🧮</span>
+        <span class="tab-label">Calculadora</span>
+      </button>
+      <button
+        class="tab-btn"
+        data-tab="estoque"
+        role="tab"
+        aria-selected="false"
+        aria-controls="view-estoque"
+      >
+        <span class="tab-icon">📦</span>
+        <span class="tab-label">Estoque</span>
+        <!-- Badge com contagem de ingredientes cadastrados -->
+        <span class="tab-badge" id="stockBadge">0</span>
+      </button>
+    </nav>
+  </header>
+
+
+  <!-- ════════════════════════════════════
+       VIEW: CALCULADORA
+       Contém as 5 etapas de precificação
+  ═════════════════════════════════════ -->
+  <div id="view-calculadora" class="app-view active" role="tabpanel" aria-labelledby="tab-calculadora">
+
+    <!-- Barra de progresso fixa -->
+    <div class="progress-bar-wrap" id="progressWrap">
+      <div class="progress-steps">
+        <button class="prog-step active" data-step="1" onclick="goToStep(1)">
+          <span class="prog-dot"><span class="prog-icon">🥚</span></span>
+          <span class="prog-label">Ingredientes</span>
+        </button>
+        <div class="prog-line"></div>
+        <button class="prog-step" data-step="2" onclick="goToStep(2)">
+          <span class="prog-dot"><span class="prog-icon">📦</span></span>
+          <span class="prog-label">Embalagens</span>
+        </button>
+        <div class="prog-line"></div>
+        <button class="prog-step" data-step="3" onclick="goToStep(3)">
+          <span class="prog-dot"><span class="prog-icon">👩‍🍳</span></span>
+          <span class="prog-label">Mão de Obra</span>
+        </button>
+        <div class="prog-line"></div>
+        <button class="prog-step" data-step="4" onclick="goToStep(4)">
+          <span class="prog-dot"><span class="prog-icon">💡</span></span>
+          <span class="prog-label">Despesas</span>
+        </button>
+        <div class="prog-line"></div>
+        <button class="prog-step" data-step="5" onclick="goToStep(5)">
+          <span class="prog-dot"><span class="prog-icon">✨</span></span>
+          <span class="prog-label">Resultado</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- Container das etapas -->
+    <main class="calc-main" id="calcMain">
+
+      <!-- ── ETAPA 1: INGREDIENTES DO BOLO ── -->
+      <section class="calc-step active" id="step-1">
+        <div class="step-head">
+          <span class="step-num">01</span>
+          <div>
+            <h2 class="step-title">Ingredientes do Bolo</h2>
+            <p class="step-desc">Adicione os ingredientes utilizados em cada parte</p>
+          </div>
+        </div>
+
+        <!-- Cada seção de ingrediente tem lista + botão adicionar -->
+        <div class="ing-sections">
+
+          <div class="ing-section" id="sec-massa">
+            <div class="ing-section-header">
+              <span class="ing-section-icon">🌾</span>
+              <span class="ing-section-name">Massa</span>
+              <span class="ing-section-total" id="total-massa">R$ 0,00</span>
+            </div>
+            <div class="ing-list" id="list-massa"></div>
+            <button class="btn-add-ing" onclick="openAddModal('massa')">
+              <span class="btn-add-plus">+</span> Adicionar ingrediente
+            </button>
+          </div>
+
+          <div class="ing-section" id="sec-calda">
+            <div class="ing-section-header">
+              <span class="ing-section-icon">🍯</span>
+              <span class="ing-section-name">Calda</span>
+              <span class="ing-section-total" id="total-calda">R$ 0,00</span>
+            </div>
+            <div class="ing-list" id="list-calda"></div>
+            <button class="btn-add-ing" onclick="openAddModal('calda')">
+              <span class="btn-add-plus">+</span> Adicionar ingrediente
+            </button>
+          </div>
+
+          <div class="ing-section" id="sec-recheio">
+            <div class="ing-section-header">
+              <span class="ing-section-icon">🍓</span>
+              <span class="ing-section-name">Recheio</span>
+              <span class="ing-section-total" id="total-recheio">R$ 0,00</span>
+            </div>
+            <div class="ing-list" id="list-recheio"></div>
+            <button class="btn-add-ing" onclick="openAddModal('recheio')">
+              <span class="btn-add-plus">+</span> Adicionar ingrediente
+            </button>
+          </div>
+
+          <div class="ing-section" id="sec-cobertura">
+            <div class="ing-section-header">
+              <span class="ing-section-icon">🍫</span>
+              <span class="ing-section-name">Cobertura</span>
+              <span class="ing-section-total" id="total-cobertura">R$ 0,00</span>
+            </div>
+            <div class="ing-list" id="list-cobertura"></div>
+            <button class="btn-add-ing" onclick="openAddModal('cobertura')">
+              <span class="btn-add-plus">+</span> Adicionar ingrediente
+            </button>
+          </div>
+
+        </div><!-- /ing-sections -->
+
+        <div class="step-total-bar">
+          <span>Total de Ingredientes</span>
+          <strong id="grand-total-ing">R$ 0,00</strong>
+        </div>
+
+        <div class="step-nav">
+          <div></div>
+          <button class="btn-next" onclick="goToStep(2)">Próximo <span>→</span></button>
+        </div>
+      </section><!-- /step-1 -->
+
+
+      <!-- ── ETAPA 2: EMBALAGENS ── -->
+      <section class="calc-step" id="step-2">
+        <div class="step-head">
+          <span class="step-num">02</span>
+          <div>
+            <h2 class="step-title">Embalagens</h2>
+            <p class="step-desc">Caixas, fitas, tags e demais materiais</p>
+          </div>
+        </div>
+
+        <div class="ing-sections">
+          <div class="ing-section" id="sec-embalagem">
+            <div class="ing-section-header">
+              <span class="ing-section-icon">📦</span>
+              <span class="ing-section-name">Itens de Embalagem</span>
+              <span class="ing-section-total" id="total-embalagem">R$ 0,00</span>
+            </div>
+            <div class="ing-list" id="list-embalagem"></div>
+            <button class="btn-add-ing" onclick="openAddModal('embalagem')">
+              <span class="btn-add-plus">+</span> Adicionar item
+            </button>
+          </div>
+        </div>
+
+        <div class="step-nav">
+          <button class="btn-back" onclick="goToStep(1)"><span>←</span> Voltar</button>
+          <button class="btn-next" onclick="goToStep(3)">Próximo <span>→</span></button>
+        </div>
+      </section><!-- /step-2 -->
+
+
+      <!-- ── ETAPA 3: MÃO DE OBRA ── -->
+      <section class="calc-step" id="step-3">
+        <div class="step-head">
+          <span class="step-num">03</span>
+          <div>
+            <h2 class="step-title">Mão de Obra</h2>
+            <p class="step-desc">Quanto vale o seu tempo e talento?</p>
+          </div>
+        </div>
+
+        <div class="card-form">
+          <div class="form-grid-2">
+            <div class="form-group">
+              <label class="form-label" for="hourlyRate">💰 Valor por Hora</label>
+              <div class="input-wrap">
+                <span class="input-pre">R$</span>
+                <input type="number" id="hourlyRate" class="form-input" placeholder="0,00" min="0" step="0.01" oninput="calcLabor()" />
+              </div>
+              <span class="form-hint">Ex: R$ 25,00 por hora</span>
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="prodTime">⏱️ Tempo de Produção</label>
+              <div class="input-wrap">
+                <span class="input-pre">h</span>
+                <input type="number" id="prodTime" class="form-input" placeholder="0" min="0" step="0.5" oninput="calcLabor()" />
+              </div>
+              <span class="form-hint">Ex: 3 ou 3.5 para 3h30</span>
+            </div>
+          </div>
+
+          <!-- Cartão visual do cálculo -->
+          <div class="labor-card">
+            <div class="labor-formula">
+              <div class="labor-piece">
+                <span class="lp-val" id="lr-rate">R$ 0,00</span>
+                <span class="lp-label">valor/hora</span>
+              </div>
+              <span class="labor-op">×</span>
+              <div class="labor-piece">
+                <span class="lp-val" id="lr-time">0h</span>
+                <span class="lp-label">horas</span>
+              </div>
+              <span class="labor-op">=</span>
+              <div class="labor-piece labor-result">
+                <span class="lp-val" id="laborTotal">R$ 0,00</span>
+                <span class="lp-label">mão de obra</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="step-nav">
+          <button class="btn-back" onclick="goToStep(2)"><span>←</span> Voltar</button>
+          <button class="btn-next" onclick="goToStep(4)">Próximo <span>→</span></button>
+        </div>
+      </section><!-- /step-3 -->
+
+
+      <!-- ── ETAPA 4: DESPESAS ── -->
+      <section class="calc-step" id="step-4">
+        <div class="step-head">
+          <span class="step-num">04</span>
+          <div>
+            <h2 class="step-title">Despesas</h2>
+            <p class="step-desc">Gasto médio por produção de bolo</p>
+          </div>
+        </div>
+
+        <div class="card-form">
+          <p class="section-subtitle">Despesas Fixas</p>
+          <div class="form-grid-2">
+            <div class="form-group">
+              <label class="form-label" for="expLight">💡 Energia Elétrica</label>
+              <div class="input-wrap">
+                <span class="input-pre">R$</span>
+                <input type="number" id="expLight" class="form-input" placeholder="0,00" min="0" step="0.01" oninput="calcExpenses()" />
+              </div>
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="expWater">💧 Água</label>
+              <div class="input-wrap">
+                <span class="input-pre">R$</span>
+                <input type="number" id="expWater" class="form-input" placeholder="0,00" min="0" step="0.01" oninput="calcExpenses()" />
+              </div>
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="expInternet">📶 Internet</label>
+              <div class="input-wrap">
+                <span class="input-pre">R$</span>
+                <input type="number" id="expInternet" class="form-input" placeholder="0,00" min="0" step="0.01" oninput="calcExpenses()" />
+              </div>
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="expGas">🔥 Gás</label>
+              <div class="input-wrap">
+                <span class="input-pre">R$</span>
+                <input type="number" id="expGas" class="form-input" placeholder="0,00" min="0" step="0.01" oninput="calcExpenses()" />
+              </div>
+            </div>
+          </div>
+
+          <!-- Resumo das despesas -->
+          <div class="expenses-summary">
+            <div class="exp-row">
+              <span>Despesas fixas</span>
+              <strong id="fixedTotal">R$ 0,00</strong>
+            </div>
+            <div class="exp-row exp-variable">
+              <span>
+                Despesas variáveis
+                <span class="info-badge" tabindex="0">
+                  10%
+                  <span class="info-tip">
+                    Cobre pequenos gastos da cozinha (papel, detergente, sacos etc.)
+                    Calculado sobre o custo total acumulado.
+                  </span>
+                </span>
+              </span>
+              <strong id="variableTotal">R$ 0,00</strong>
+            </div>
+            <div class="exp-row exp-total-row">
+              <span>Total despesas</span>
+              <strong id="expensesTotal">R$ 0,00</strong>
+            </div>
+          </div>
+        </div>
+
+        <div class="step-nav">
+          <button class="btn-back" onclick="goToStep(3)"><span>←</span> Voltar</button>
+          <button class="btn-next btn-green" onclick="goToStep(5)">Ver Resultado ✨</button>
+        </div>
+      </section><!-- /step-4 -->
+
+
+      <!-- ── ETAPA 5: RESULTADO ── -->
+      <section class="calc-step" id="step-5">
+        <div class="step-head">
+          <span class="step-num">05</span>
+          <div>
+            <h2 class="step-title">Resultado Final</h2>
+            <p class="step-desc">O preço justo para o seu bolo ♡</p>
+          </div>
+        </div>
+
+        <!-- Breakdown de custos -->
+        <div class="result-card">
+          <h3 class="result-card-title">📋 Composição do Custo</h3>
+          <div id="resultBreakdown"></div>
+
+          <!-- Barra visual proporcional -->
+          <div class="comp-bar-wrap">
+            <div class="comp-bar" id="compBar"></div>
+            <div class="comp-legend" id="compLegend"></div>
+          </div>
+        </div>
+
+        <!-- Margem de lucro -->
+        <div class="result-card margin-card">
+          <h3 class="result-card-title">📈 Margem de Lucro</h3>
+          <div class="margin-control">
+            <div class="margin-num-wrap">
+              <input type="number" id="marginInput" class="margin-num-input" value="30" min="0" max="500" step="1" oninput="updateMargin()" />
+              <span class="margin-pct-sign">%</span>
+            </div>
+            <input type="range" id="marginSlider" class="margin-slider" min="0" max="200" value="30" step="1" oninput="syncMargin(this.value)" />
+            <div class="margin-slider-labels">
+              <span>0%</span><span style="color:var(--verde);font-weight:700">Padrão: 30%</span><span>200%</span>
+            </div>
+          </div>
+          <div class="margin-result-row">
+            <span>Valor do lucro</span>
+            <strong id="marginValue">R$ 0,00</strong>
+          </div>
+        </div>
+
+        <!-- Preço final em destaque -->
+        <div class="price-hero">
+          <div class="price-hero-eyebrow">Preço Sugerido de Venda</div>
+          <div class="price-hero-value" id="finalPrice">R$ 0,00</div>
+          <div class="price-hero-meta">
+            Custo: <span id="costDisplay">R$ 0,00</span>
+            &nbsp;·&nbsp;
+            Lucro: <span id="profitDisplay">R$ 0,00</span>
+          </div>
+        </div>
+
+        <div class="step-nav result-nav">
+          <button class="btn-back" onclick="goToStep(4)"><span>←</span> Ajustar</button>
+          <button class="btn-print" onclick="window.print()">🖨️ Imprimir</button>
+          <button class="btn-reset" onclick="resetCalc()">↺ Novo Cálculo</button>
+        </div>
+      </section><!-- /step-5 -->
+
+    </main>
+  </div><!-- /view-calculadora -->
+
+
+  <!-- ════════════════════════════════════
+       VIEW: ESTOQUE DE INGREDIENTES
+       CRUD completo com busca e filtro
+  ═════════════════════════════════════ -->
+  <div id="view-estoque" class="app-view" role="tabpanel" aria-labelledby="tab-estoque">
+    <div class="estoque-main">
+
+      <div class="estoque-header">
+        <div>
+          <h2 class="estoque-title">Meu Estoque</h2>
+          <p class="estoque-desc">Cadastre os ingredientes com preço e embalagem</p>
+        </div>
+        <button class="btn-add-stock" onclick="openStockModal()">
+          <span>+</span> Novo Ingrediente
+        </button>
+      </div>
+
+      <!-- Campo de busca -->
+      <div class="stock-search-wrap">
+        <span class="stock-search-icon">🔍</span>
+        <input
+          type="text"
+          id="stockSearch"
+          class="stock-search-input"
+          placeholder="Buscar ingrediente..."
+          oninput="filterStock(this.value)"
+        />
+        <!-- Filtro por categoria -->
+        <select id="stockCategoryFilter" class="stock-filter-select" onchange="filterStock(document.getElementById('stockSearch').value)">
+          <option value="">Todas as categorias</option>
+          <option value="massa">🌾 Massa</option>
+          <option value="calda">🍯 Calda</option>
+          <option value="recheio">🍓 Recheio</option>
+          <option value="cobertura">🍫 Cobertura</option>
+          <option value="embalagem">📦 Embalagem</option>
+          <option value="outros">📌 Outros</option>
+        </select>
+      </div>
+
+      <!-- Grid de ingredientes cadastrados -->
+      <div class="stock-grid" id="stockGrid">
+        <!-- Preenchido pelo JS -->
+      </div>
+
+      <!-- Estado vazio (quando não há ingredientes) -->
+      <div class="stock-empty" id="stockEmpty">
+        <div class="stock-empty-icon">🧺</div>
+        <p class="stock-empty-title">Estoque vazio</p>
+        <p class="stock-empty-desc">Adicione seus ingredientes para usar na calculadora</p>
+        <button class="btn-add-stock" onclick="openStockModal()">
+          <span>+</span> Adicionar primeiro ingrediente
+        </button>
+      </div>
+
+    </div>
+  </div><!-- /view-estoque -->
+
+
+  <!-- ════════════════════════════════════
+       MODAL: ADICIONAR INGREDIENTE
+       Abre ao clicar "+ Adicionar" na calc
+       Permite escolher do estoque ou manual
+  ═════════════════════════════════════ -->
+  <div class="modal-overlay" id="modalAddIng" role="dialog" aria-modal="true" aria-labelledby="modalAddTitle">
+    <div class="modal-box">
+      <div class="modal-header">
+        <h3 class="modal-title" id="modalAddTitle">Adicionar Ingrediente</h3>
+        <button class="modal-close" onclick="closeModal('modalAddIng')" aria-label="Fechar">✕</button>
+      </div>
+
+      <!-- Tabs: Do Estoque / Manual -->
+      <div class="modal-tabs">
+        <button class="modal-tab active" id="mtab-stock" onclick="switchModalTab('stock')">
+          📦 Do Estoque
+        </button>
+        <button class="modal-tab" id="mtab-manual" onclick="switchModalTab('manual')">
+          ✏️ Manual
+        </button>
+      </div>
+
+      <!-- Painel: Do Estoque -->
+      <div class="modal-panel active" id="mpanel-stock">
+        <div class="modal-stock-search-wrap">
+          <span>🔍</span>
+          <input
+            type="text"
+            id="modalStockSearch"
+            class="modal-stock-search"
+            placeholder="Buscar no estoque..."
+            oninput="filterModalStock(this.value)"
+          />
+        </div>
+
+        <!-- Lista de ingredientes do estoque para selecionar -->
+        <div class="modal-stock-list" id="modalStockList">
+          <!-- Preenchido pelo JS -->
+        </div>
+
+        <!-- Campos que aparecem após selecionar um ingrediente -->
+        <div class="modal-stock-qty" id="modalStockQty" style="display:none">
+          <div class="selected-ing-card" id="selectedIngCard">
+            <!-- Mostra o ingrediente selecionado -->
+          </div>
+          <div class="form-group">
+            <label class="form-label">Quantidade utilizada</label>
+            <div class="qty-input-wrap">
+              <input
+                type="number"
+                id="modalQtyInput"
+                class="form-input qty-input"
+                placeholder="0"
+                min="0"
+                step="0.1"
+                oninput="calcModalCost()"
+              />
+              <span class="qty-unit-badge" id="modalQtyUnit">g</span>
+            </div>
+          </div>
+          <div class="modal-cost-preview" id="modalCostPreview">
+            <span>Custo calculado:</span>
+            <strong id="modalCostValue">R$ 0,00</strong>
+          </div>
+        </div>
+
+        <!-- Se estoque vazio, mostra aviso -->
+        <div class="modal-stock-empty" id="modalStockEmpty" style="display:none">
+          <p>Nenhum ingrediente no estoque ainda.</p>
+          <button class="btn-link" onclick="switchModalTab('manual')">Adicionar manualmente →</button>
+        </div>
+      </div>
+
+      <!-- Painel: Manual -->
+      <div class="modal-panel" id="mpanel-manual">
+        <div class="form-group">
+          <label class="form-label" for="manualName">Nome do ingrediente</label>
+          <input type="text" id="manualName" class="form-input" placeholder="Ex: Farinha de trigo" />
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="manualCost">Custo (R$)</label>
+          <div class="input-wrap">
+            <span class="input-pre">R$</span>
+            <input type="number" id="manualCost" class="form-input" placeholder="0,00" min="0" step="0.01" />
+          </div>
+        </div>
+        <!-- Opção de salvar no estoque -->
+        <label class="save-to-stock-check">
+          <input type="checkbox" id="saveToStockCheck" />
+          <span class="check-box-custom"></span>
+          <span>Salvar no estoque para usar depois</span>
+        </label>
+        <!-- Campos extras que aparecem se marcar "salvar no estoque" -->
+        <div id="saveToStockFields" style="display:none">
+          <div class="save-fields-divider">Dados para o estoque</div>
+          <div class="form-grid-2">
+            <div class="form-group">
+              <label class="form-label">Qtd da embalagem</label>
+              <input type="number" id="saveQtyPkg" class="form-input" placeholder="Ex: 1000" min="0" step="0.1" />
+            </div>
+            <div class="form-group">
+              <label class="form-label">Unidade</label>
+              <select id="saveUnit" class="form-input form-select">
+                <option value="g">g (gramas)</option>
+                <option value="ml">ml (mililitros)</option>
+                <option value="kg">kg (quilos)</option>
+                <option value="L">L (litros)</option>
+                <option value="un">un (unidades)</option>
+              </select>
+            </div>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Preço da embalagem (R$)</label>
+            <div class="input-wrap">
+              <span class="input-pre">R$</span>
+              <input type="number" id="savePkgPrice" class="form-input" placeholder="0,00" min="0" step="0.01" />
+            </div>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Categoria</label>
+            <select id="saveCategory" class="form-input form-select">
+              <option value="massa">🌾 Massa</option>
+              <option value="calda">🍯 Calda</option>
+              <option value="recheio">🍓 Recheio</option>
+              <option value="cobertura">🍫 Cobertura</option>
+              <option value="embalagem">📦 Embalagem</option>
+              <option value="outros">📌 Outros</option>
+            </select>
+          </div>
+        </div>
+      </div>
+
+      <!-- Rodapé do modal com ações -->
+      <div class="modal-footer">
+        <button class="btn-modal-cancel" onclick="closeModal('modalAddIng')">Cancelar</button>
+        <button class="btn-modal-confirm" id="btnConfirmAdd" onclick="confirmAddIngredient()">
+          Adicionar ✓
+        </button>
+      </div>
+    </div>
+  </div><!-- /modalAddIng -->
+
+
+  <!-- ════════════════════════════════════
+       MODAL: CADASTRAR/EDITAR NO ESTOQUE
+       Abre da aba Estoque ou do modal de add
+  ═════════════════════════════════════ -->
+  <div class="modal-overlay" id="modalStock" role="dialog" aria-modal="true" aria-labelledby="modalStockTitle">
+    <div class="modal-box">
+      <div class="modal-header">
+        <h3 class="modal-title" id="modalStockTitle">Novo Ingrediente</h3>
+        <button class="modal-close" onclick="closeModal('modalStock')" aria-label="Fechar">✕</button>
+      </div>
+
+      <!-- Campo oculto para ID (modo edição) -->
+      <input type="hidden" id="editStockId" value="" />
+
+      <div class="modal-body">
+        <div class="form-group">
+          <label class="form-label" for="stockName">Nome do ingrediente *</label>
+          <input type="text" id="stockName" class="form-input" placeholder="Ex: Farinha de trigo" />
+        </div>
+
+        <div class="form-grid-2">
+          <div class="form-group">
+            <label class="form-label" for="stockQtyPkg">Qtd da embalagem *</label>
+            <input type="number" id="stockQtyPkg" class="form-input" placeholder="Ex: 1000" min="0" step="0.1" oninput="previewCostPerUnit()" />
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="stockUnit">Unidade *</label>
+            <select id="stockUnit" class="form-input form-select" onchange="previewCostPerUnit()">
+              <option value="g">g (gramas)</option>
+              <option value="ml">ml (mililitros)</option>
+              <option value="kg">kg (quilos)</option>
+              <option value="L">L (litros)</option>
+              <option value="un">un (unidades)</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="stockPkgPrice">Preço da embalagem (R$) *</label>
+          <div class="input-wrap">
+            <span class="input-pre">R$</span>
+            <input type="number" id="stockPkgPrice" class="form-input" placeholder="0,00" min="0" step="0.01" oninput="previewCostPerUnit()" />
+          </div>
+        </div>
+
+        <!-- Preview do custo por unidade em tempo real -->
+        <div class="cost-per-unit-preview" id="costPerUnitPreview" style="display:none">
+          <span class="cpu-label">Custo por unidade:</span>
+          <span class="cpu-value" id="cpuValue">R$ 0,00 / g</span>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="stockCategory">Categoria</label>
+          <select id="stockCategory" class="form-input form-select">
+            <option value="massa">🌾 Massa</option>
+            <option value="calda">🍯 Calda</option>
+            <option value="recheio">🍓 Recheio</option>
+            <option value="cobertura">🍫 Cobertura</option>
+            <option value="embalagem">📦 Embalagem</option>
+            <option value="outros">📌 Outros</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="stockNotes">Observações <span style="font-weight:400;opacity:.6">(opcional)</span></label>
+          <input type="text" id="stockNotes" class="form-input" placeholder="Ex: Marca X, comprado no mercado Y" />
+        </div>
+      </div>
+
+      <div class="modal-footer">
+        <button class="btn-modal-cancel" onclick="closeModal('modalStock')">Cancelar</button>
+        <button class="btn-modal-confirm" onclick="saveStockItem()">Salvar ✓</button>
+      </div>
+    </div>
+  </div><!-- /modalStock -->
+
+
+  <!-- ════════════════════════════════════
+       MODAL: CONFIRMAR EXCLUSÃO
+  ═════════════════════════════════════ -->
+  <div class="modal-overlay" id="modalDelete" role="dialog" aria-modal="true">
+    <div class="modal-box modal-box-sm">
+      <div class="modal-header">
+        <h3 class="modal-title">Excluir ingrediente?</h3>
+        <button class="modal-close" onclick="closeModal('modalDelete')">✕</button>
+      </div>
+      <div class="modal-body">
+        <p class="delete-confirm-text">
+          Tem certeza que deseja excluir <strong id="deleteItemName"></strong>?
+          Esta ação não pode ser desfeita.
+        </p>
+      </div>
+      <div class="modal-footer">
+        <button class="btn-modal-cancel" onclick="closeModal('modalDelete')">Cancelar</button>
+        <button class="btn-modal-delete" id="btnConfirmDelete" onclick="confirmDelete()">
+          Excluir
+        </button>
+      </div>
+    </div>
+  </div><!-- /modalDelete -->
+
+  <!-- Scripts (ordem importa: storage → estoque → calculator → modal → app) -->
+  <script src="js/storage.js"></script>
+  <script src="js/estoque.js"></script>
+  <script src="js/calculator.js"></script>
+  <script src="js/modal.js"></script>
+  <script src="js/app.js"></script>
+
+</body>
+</html>
