@@ -1,6 +1,6 @@
 # Calculadora de Precificação v2.0
 
-Acesse e teste: 'https://danrerez.github.io/calculadora-confeitaria/'
+Acesse e teste: https://danrerez.github.io/calculadora-confeitaria/
 
 ---
 
